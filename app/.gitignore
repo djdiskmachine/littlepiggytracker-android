@@ -1,0 +1,21 @@
+/build
+.gradle
+*.iml
+local.properties
+
+# Generated native libraries
+src/main/jniLibs/
+
+# CMake build artifacts (not used but keep ignored)
+.cxx/
+.externalNativeBuild/
+src/main/cpp/CMakeLists.txt
+src/main/cpp/native-lib.cpp
+
+# Android Studio
+.idea/
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
