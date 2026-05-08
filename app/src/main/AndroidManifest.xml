@@ -13,14 +13,14 @@
     <!-- For Android 13+ (API 33+), we need these for file access -->
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- For Android 11+ (API 30+), manage external storage access -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
         android:requestLegacyExternalStorage="true"
@@ -36,11 +36,18 @@
             </intent-filter>
         </activity>
         
-        <!-- SDL Activity for native app -->
+        <!-- Extended SDL Activity with on-screen button overlay -->
         <activity
-            android:name="org.libsdl.app.SDLActivity"
+            android:name=".LgptSDLActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="unspecified"
+            android:exported="false">
+        </activity>
+        
+        <!-- Settings activity -->
+        <activity
+            android:name=".SettingsActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
             android:exported="false">
         </activity>
     </application>

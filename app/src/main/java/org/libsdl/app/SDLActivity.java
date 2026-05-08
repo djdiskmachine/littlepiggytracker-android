@@ -396,7 +396,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mSurface = createSDLSurface(this);
 
         mLayout = new RelativeLayout(this);
-        mLayout.addView(mSurface);
+        // Add the SDL surface with MATCH_PARENT so it fills the screen
+        android.widget.RelativeLayout.LayoutParams surfaceParams = new android.widget.RelativeLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        );
+        surfaceParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        surfaceParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        mLayout.addView(mSurface, surfaceParams);
 
         // Get our current screen orientation and pass it down.
         mCurrentOrientation = SDLActivity.getCurrentOrientation();

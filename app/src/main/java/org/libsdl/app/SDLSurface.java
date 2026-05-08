@@ -300,6 +300,10 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     // Sensor events
     public void enableSensor(int sensortype, boolean enabled) {
+        // Accelerometer-as-joystick is disabled; LGPT doesn't use it and it spams the event log
+        if (sensortype == Sensor.TYPE_ACCELEROMETER) {
+            return;
+        }
         // TODO: This uses getDefaultSensor - what if we have >1 accels?
         if (enabled) {
             mSensorManager.registerListener(this,

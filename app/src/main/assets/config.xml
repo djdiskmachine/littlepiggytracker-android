@@ -1,16 +1,9 @@
 <CONFIG>
     <DUMPEVENT value="YES"/>
-    <!-- Default colors below -->
-    <BACKGROUND   value = "1D0A1F" />
-    <FOREGROUND   value = "F5EBFF" />
-    <BORDER       value = "FF00DD" />
-    <HICOLOR1     value = "B750D1" />
-    <HICOLOR2     value = "DB33DB" />
-    <SONGVIEW_FE  value = "A55B8F" />
-    <SONGVIEW_00  value = "853B6F" />
-    <CURSORCOLOR  value = "FF00DD" />
-    <PLAYCOLOR    value = "FF00DD" />
-    <MUTECOLOR    value = "F5EBFF" />
-    <ROWCOLOR1    value = "BA28F9" />
-    <ROWCOLOR2    value = "FF00FF" />
+    <SCREENMULT value="3"/>
+    <XOFFSET value="80"/>
+    <YOFFSET value="320"/>
+    <ROOTFOLDER value="/storage/emulated/0/LittlePiggyTracker"/>
+    <SAMPLELIB value="/storage/emulated/0/LittlePiggyTracker"/>
+
 </CONFIG>
