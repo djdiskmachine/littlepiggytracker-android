@@ -12,7 +12,7 @@ val sdlExtractDir = layout.buildDirectory.dir("sdl-extracted").get().asFile
 android {
     namespace = "org.neocities.djdiskmachine.lgpt_android"
     compileSdk = 36
-
+    android.ndkVersion = "27.3.13750724"
     defaultConfig {
         applicationId = "org.neocities.djdiskmachine.lgpt_android"
         minSdk = 21
@@ -179,15 +179,15 @@ val buildLGPTArmv7 by tasks.registering(Exec::class) {
     val outputLib = file("src/main/jniLibs/armeabi-v7a/libmain.so")
     
     // Track source files as inputs so Gradle rebuilds when they change
-    inputs.dir(file("$projectDir/../sources"))
-    inputs.file(file("$projectDir/../projects/Makefile.ANDROID"))
+    inputs.dir(file("$projectDir/../../sources"))
+    inputs.file(file("$projectDir/../../projects/Makefile.ANDROID"))
     
     outputs.file(outputLib)
-    outputs.file(file("$projectDir/../projects/libmain_armeabi-v7a.so"))
+    outputs.file(file("$projectDir/../../projects/libmain_armeabi-v7a.so"))
     
-    workingDir = file("$projectDir/../projects")
+    workingDir = file("$projectDir/../../projects")
     
-    environment("PWD", file("$projectDir/../projects").absolutePath)
+    environment("PWD", file("$projectDir/../../projects").absolutePath)
     environment("PLATFORM", "ANDROID")
     environment("ABI", "armeabi-v7a")
     environment("ANDROID_NDK_HOME", android.ndkDirectory.absolutePath)
@@ -218,15 +218,15 @@ val buildLGPTArm64 by tasks.registering(Exec::class) {
     val outputLib = file("src/main/jniLibs/arm64-v8a/libmain.so")
     
     // Track source files as inputs so Gradle rebuilds when they change
-    inputs.dir(file("$projectDir/../sources"))
-    inputs.file(file("$projectDir/../projects/Makefile.ANDROID"))
+    inputs.dir(file("$projectDir/../../sources"))
+    inputs.file(file("$projectDir/../../projects/Makefile.ANDROID"))
     
     outputs.file(outputLib)
-    outputs.file(file("$projectDir/../projects/libmain_arm64-v8a.so"))
+    outputs.file(file("$projectDir/../../projects/libmain_arm64-v8a.so"))
     
-    workingDir = file("$projectDir/../projects")
+    workingDir = file("$projectDir/../../projects")
     
-    environment("PWD", file("$projectDir/../projects").absolutePath)
+    environment("PWD", file("$projectDir/../../projects").absolutePath)
     environment("PLATFORM", "ANDROID")
     environment("ABI", "arm64-v8a")
     environment("ANDROID_NDK_HOME", android.ndkDirectory.absolutePath)
