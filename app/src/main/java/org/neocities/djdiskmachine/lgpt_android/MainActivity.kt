@@ -20,64 +20,64 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Create app-specific folder first (no permissions needed)
-        createAppSpecificFolder()
+        // Initialize app folders and copy asset files
+        initializeFiles()
         
-        // Check for user-edited config.xml in public folder first, use it if it exists
-        // Otherwise copy default from assets
-        if (!copyPublicConfigIfExists()) {
-            // No public config found, use default from assets
-            copyAssetToExternalStorage("config.xml", forceOverwrite = true)
-        }
-        
-        // Copy mapping.xml from assets (always)
-        copyAssetToExternalStorage("mapping.xml")
-        
-        // Request storage permissions (will create public folder in callback if granted)
+        // Request storage permissions and start game
         requestStoragePermissions()
     }
 
-    private fun copyAssetToExternalStorage(filename: String, forceOverwrite: Boolean = false) {
+    private fun initializeFiles() {
         try {
-            val externalDir = getExternalFilesDir(null) ?: run {
-                Log.e(TAG, "External storage not available")
-                return
+            // Copy config.xml and mapping.xml from assets to BOTH locations:
+            // 1. App-specific folder (where game reads from)
+            // 2. Public LittlePiggyTracker folder (where user can edit)
+            
+            val appSpecificFolder = getExternalFilesDir(null)
+            val publicFolder = File("/storage/emulated/0/LittlePiggyTracker")
+            
+            // Ensure folders exist
+            appSpecificFolder?.mkdirs()
+            publicFolder.mkdirs()
+            
+            // Copy config.xml and mapping.xml to app-specific folder
+            if (appSpecificFolder != null) {
+                copyAssetToFolder("config.xml", appSpecificFolder)
+                copyAssetToFolder("mapping.xml", appSpecificFolder)
             }
+            
+            // Copy config.xml and mapping.xml to public folder
+            copyAssetToFolder("config.xml", publicFolder)
+            copyAssetToFolder("mapping.xml", publicFolder)
+            
+            Log.i(TAG, "Files initialized successfully")
+            Log.i(TAG, "App-specific folder: ${appSpecificFolder?.absolutePath}")
+            Log.i(TAG, "Public folder: ${publicFolder.absolutePath}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to initialize files", e)
+        }
+    }
 
-            val destFile = File(externalDir, filename)
-
-            if (!destFile.exists() || forceOverwrite) {
-                Log.i(TAG, "Copying $filename from assets to ${destFile.absolutePath}")
+    private fun copyAssetToFolder(filename: String, folder: File) {
+        try {
+            if (!folder.exists()) folder.mkdirs()
+            
+            val destFile = File(folder, filename)
+            
+            // Only copy if file doesn't exist (preserves user edits to config.xml)
+            if (!destFile.exists()) {
+                Log.i(TAG, "Copying $filename to ${folder.absolutePath}")
                 assets.open(filename).use { input ->
                     FileOutputStream(destFile).use { output ->
                         input.copyTo(output)
                     }
                 }
-                Log.i(TAG, "Successfully copied $filename")
+                Log.i(TAG, "Successfully copied $filename to ${destFile.absolutePath}")
             } else {
-                Log.i(TAG, "$filename already exists, skipping")
+                Log.d(TAG, "$filename already exists in ${folder.absolutePath}, skipping")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to copy $filename from assets", e)
-        }
-    }
-
-    private fun createAppSpecificFolder() {
-        try {
-            // Create app-specific folder (never needs permissions)
-            val appSpecificFolder = getExternalFilesDir("LittlePiggyTracker")
-            if (appSpecificFolder != null) {
-                if (!appSpecificFolder.exists()) {
-                    val created = appSpecificFolder.mkdirs()
-                    Log.i(TAG, "App-specific folder: created=$created, path=${appSpecificFolder.absolutePath}")
-                } else {
-                    Log.i(TAG, "App-specific folder already exists: ${appSpecificFolder.absolutePath}")
-                }
-            } else {
-                Log.w(TAG, "getExternalFilesDir returned null")
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Exception in createAppSpecificFolder", e)
+            Log.e(TAG, "Failed to copy $filename to ${folder.absolutePath}", e)
         }
     }
 

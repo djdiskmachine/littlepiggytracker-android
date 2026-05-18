@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.content.Intent
+import android.widget.PopupMenu
 import org.libsdl.app.SDLActivity
 
 /**
@@ -114,9 +115,26 @@ class LgptSDLActivity : SDLActivity() {
     }
 
     private fun openSettings() {
-        Log.i(TAG, "Opening settings")
-        val intent = Intent(this, SettingsActivity::class.java)
-        startActivity(intent)
+        Log.i(TAG, "Opening menu")
+        val contentView = window.decorView.findViewById<ViewGroup>(android.R.id.content)
+        val menuButton = contentView.findViewById<ImageButton>(android.view.View.generateViewId())
+        
+        // Create popup menu and find the menu button to anchor it
+        val firstButton = (contentView as? ViewGroup)?.let { parent ->
+            (0 until parent.childCount).mapNotNull { parent.getChildAt(it) as? ImageButton }.firstOrNull()
+        }
+        
+        val anchor = firstButton ?: contentView
+        val popup = PopupMenu(this, anchor)
+        popup.menu.add("Settings").setOnMenuItemClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            true
+        }
+        popup.menu.add("Configure Input").setOnMenuItemClickListener {
+            startActivity(Intent(this, InputMapperActivity::class.java))
+            true
+        }
+        popup.show()
     }
 
     fun toggleButtonOverlay(enabled: Boolean) {
