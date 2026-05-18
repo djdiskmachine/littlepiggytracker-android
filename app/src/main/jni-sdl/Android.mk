@@ -1,3 +1,3 @@
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
-include /home/mkaczma3/Documents/GitRepos/LittleGPTracker/app/build/sdl-extracted/SDL2-2.30.9/Android.mk
+include $(firstword $(wildcard $(LOCAL_PATH)/../../build/sdl-extracted/SDL2-*/Android.mk))

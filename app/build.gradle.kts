@@ -12,7 +12,6 @@ val sdlExtractDir = layout.buildDirectory.dir("sdl-extracted").get().asFile
 android {
     namespace = "org.neocities.djdiskmachine.lgpt_android"
     compileSdk = 36
-    android.ndkVersion = "27.3.13750724"
     defaultConfig {
         applicationId = "org.neocities.djdiskmachine.lgpt_android"
         minSdk = 21
@@ -210,7 +209,7 @@ val buildLGPTArmv7 by tasks.registering(Exec::class) {
     doLast {
         // Copy the built library
         copy {
-            from("$projectDir/../projects/libmain_armeabi-v7a.so")
+            from("$projectDir/../../projects/libmain_armeabi-v7a.so")
             into("src/main/jniLibs/armeabi-v7a")
             rename { "libmain.so" }
         }
@@ -249,7 +248,7 @@ val buildLGPTArm64 by tasks.registering(Exec::class) {
     doLast {
         // Copy the built library
         copy {
-            from("$projectDir/../projects/libmain_arm64-v8a.so")
+            from("$projectDir/../../projects/libmain_arm64-v8a.so")
             into("src/main/jniLibs/arm64-v8a")
             rename { "libmain.so" }
         }
