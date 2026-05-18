@@ -27,9 +27,20 @@ android {
         }
     }
 
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(System.getProperty("user.home") + "/lgpt.jks")
+            storePassword = "lgptpass"
+            keyAlias = "lgpt"
+            keyPassword = "lgptpass"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

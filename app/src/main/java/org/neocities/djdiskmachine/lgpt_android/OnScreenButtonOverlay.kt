@@ -53,7 +53,7 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
 
     private val textPaint = Paint().apply {
         color = 0xFFFFFFFF.toInt()
-        textSize = 32f
+        textSize = 40f
         textAlign = Paint.Align.CENTER
         isAntiAlias = true
     }
@@ -66,7 +66,7 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
     }
 
     private fun layoutButtons(width: Int, height: Int) {
-        val btnSize = 140
+        val btnSize = 160
         val spacing = 8
         val dpadX = (width * 0.05f).toInt()
 

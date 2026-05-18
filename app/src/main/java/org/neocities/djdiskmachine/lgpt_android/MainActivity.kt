@@ -21,10 +21,19 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         // Initialize app folders and copy asset files
-        initializeFiles()
-        
-        // Request storage permissions and start game
-        requestStoragePermissions()
+        val prefs = getSharedPreferences("lgpt_prefs", MODE_PRIVATE)
+        val isFirstRun = !prefs.getBoolean("app_initialized", false)
+    
+        if (isFirstRun) {
+            // Only on first launch
+            initializeFiles()
+            requestStoragePermissions()
+            prefs.edit().putBoolean("app_initialized", true).apply()
+        } else {
+            // Subsequent launches - go straight to game
+            copyPublicConfigIfExists()
+            startLgptActivity()
+        }
     }
 
     private fun initializeFiles() {
