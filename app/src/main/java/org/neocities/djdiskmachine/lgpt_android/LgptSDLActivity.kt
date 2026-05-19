@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.content.Intent
 import android.widget.PopupMenu
+import android.widget.Toast
 import org.libsdl.app.SDLActivity
 
 /**
@@ -23,12 +24,18 @@ class LgptSDLActivity : SDLActivity() {
         private const val MENU_BUTTON_VIEW_ID = 0x00f00001
         private const val PREF_SURFACE_OFFSET_X = "surface_offset_x"
         private const val PREF_SURFACE_OFFSET_Y = "surface_offset_y"
+
+        init {
+            System.loadLibrary("main")
+        }
     }
-    
+
+    private external fun invalidateScreen()
     private var buttonOverlay: OnScreenButtonOverlay? = null
     private lateinit var prefs: SharedPreferences
     private var overlaySetupDone = false
     private var menuButtonSetupDone = false
+    private var nativeReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +66,14 @@ class LgptSDLActivity : SDLActivity() {
             setupMenuButton()
             restoreSurfaceOffset()
             menuButtonSetupDone = true
+        }
+
+        // Force redraw on resume
+        // Called here instead of onResume so SDL surface is ready
+        if (hasFocus && nativeReady) {
+            invalidateScreen()
+        } else if (hasFocus) {
+            nativeReady = true
         }
     }
 
@@ -217,3 +232,4 @@ class LgptSDLActivity : SDLActivity() {
 
     fun isButtonOverlayVisible(): Boolean = buttonOverlay?.visibility == android.view.View.VISIBLE
 }
+

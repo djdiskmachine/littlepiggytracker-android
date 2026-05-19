@@ -102,10 +102,10 @@ class InputMapperActivity : AppCompatActivity() {
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (!isListeningForInput) return super.onKeyDown(keyCode, event)
         val lgptEvent = LGPT_EVENTS[currentEventIndex]
-        val keyName = convertKeyCodeToString(keyCode)
-        detectedEventText.text = "Detected: $keyName"
-        Log.i(TAG, "Mapped $lgptEvent -> key:0:$keyName")
-        mappedEvents[lgptEvent] = "key:0:$keyName"
+        val mappingValue = keyCodeToMappingValue(keyCode)
+        detectedEventText.text = "Detected: $mappingValue"
+        Log.i(TAG, "Mapped $lgptEvent -> $mappingValue")
+        mappedEvents[lgptEvent] = mappingValue
         isListeningForInput = false
         currentEventIndex++
         startListeningForCurrentEvent()
@@ -160,76 +160,69 @@ class InputMapperActivity : AppCompatActivity() {
         saveButton.visibility = android.view.View.GONE
     }
 
-    private fun convertKeyCodeToString(keyCode: Int): String {
-        return when (keyCode) {
-            KeyEvent.KEYCODE_A -> "a"
-            KeyEvent.KEYCODE_B -> "b"
-            KeyEvent.KEYCODE_C -> "c"
-            KeyEvent.KEYCODE_D -> "d"
-            KeyEvent.KEYCODE_E -> "e"
-            KeyEvent.KEYCODE_F -> "f"
-            KeyEvent.KEYCODE_G -> "g"
-            KeyEvent.KEYCODE_H -> "h"
-            KeyEvent.KEYCODE_I -> "i"
-            KeyEvent.KEYCODE_J -> "j"
-            KeyEvent.KEYCODE_K -> "k"
-            KeyEvent.KEYCODE_L -> "l"
-            KeyEvent.KEYCODE_M -> "m"
-            KeyEvent.KEYCODE_N -> "n"
-            KeyEvent.KEYCODE_O -> "o"
-            KeyEvent.KEYCODE_P -> "p"
-            KeyEvent.KEYCODE_Q -> "q"
-            KeyEvent.KEYCODE_R -> "r"
-            KeyEvent.KEYCODE_S -> "s"
-            KeyEvent.KEYCODE_T -> "t"
-            KeyEvent.KEYCODE_U -> "u"
-            KeyEvent.KEYCODE_V -> "v"
-            KeyEvent.KEYCODE_W -> "w"
-            KeyEvent.KEYCODE_X -> "x"
-            KeyEvent.KEYCODE_Y -> "y"
-            KeyEvent.KEYCODE_Z -> "z"
-            KeyEvent.KEYCODE_0 -> "0"
-            KeyEvent.KEYCODE_1 -> "1"
-            KeyEvent.KEYCODE_2 -> "2"
-            KeyEvent.KEYCODE_3 -> "3"
-            KeyEvent.KEYCODE_4 -> "4"
-            KeyEvent.KEYCODE_5 -> "5"
-            KeyEvent.KEYCODE_6 -> "6"
-            KeyEvent.KEYCODE_7 -> "7"
-            KeyEvent.KEYCODE_8 -> "8"
-            KeyEvent.KEYCODE_9 -> "9"
-            KeyEvent.KEYCODE_SPACE -> "space"
-            KeyEvent.KEYCODE_ENTER -> "return"
-            KeyEvent.KEYCODE_DPAD_UP -> "up"
-            KeyEvent.KEYCODE_DPAD_DOWN -> "down"
-            KeyEvent.KEYCODE_DPAD_LEFT -> "left"
-            KeyEvent.KEYCODE_DPAD_RIGHT -> "right"
-            KeyEvent.KEYCODE_BACK -> "back"
-            KeyEvent.KEYCODE_DEL -> "backspace"
-            KeyEvent.KEYCODE_ESCAPE -> "escape"
-            KeyEvent.KEYCODE_TAB -> "tab"
-            KeyEvent.KEYCODE_MINUS -> "[-]"
-            KeyEvent.KEYCODE_EQUALS -> "="
+    // Maps an Android keycode to lgpt config format:
+    // gamepad buttons → "but:0:N" (SDL joystick button index per SDL_sysjoystick.c)
+    // keyboard keys   → "key:0:name"
+    private fun keyCodeToMappingValue(keyCode: Int): String {
+        val sdlButton = when (keyCode) {
+            KeyEvent.KEYCODE_BUTTON_A       -> 0   // SDL_CONTROLLER_BUTTON_A
+            KeyEvent.KEYCODE_BUTTON_B       -> 1   // SDL_CONTROLLER_BUTTON_B
+            KeyEvent.KEYCODE_BUTTON_X       -> 2   // SDL_CONTROLLER_BUTTON_X
+            KeyEvent.KEYCODE_BUTTON_Y       -> 3   // SDL_CONTROLLER_BUTTON_Y
+            KeyEvent.KEYCODE_BUTTON_SELECT  -> 4   // SDL_CONTROLLER_BUTTON_BACK
+            KeyEvent.KEYCODE_BUTTON_MODE    -> 5   // SDL_CONTROLLER_BUTTON_GUIDE
+            KeyEvent.KEYCODE_BUTTON_START   -> 6   // SDL_CONTROLLER_BUTTON_START
+            KeyEvent.KEYCODE_BUTTON_THUMBL  -> 7   // SDL_CONTROLLER_BUTTON_LEFTSTICK
+            KeyEvent.KEYCODE_BUTTON_THUMBR  -> 8   // SDL_CONTROLLER_BUTTON_RIGHTSTICK
+            KeyEvent.KEYCODE_BUTTON_L1      -> 9   // SDL_CONTROLLER_BUTTON_LEFTSHOULDER
+            KeyEvent.KEYCODE_BUTTON_R1      -> 10  // SDL_CONTROLLER_BUTTON_RIGHTSHOULDER
+            KeyEvent.KEYCODE_DPAD_UP        -> 11  // SDL_CONTROLLER_BUTTON_DPAD_UP
+            KeyEvent.KEYCODE_DPAD_DOWN      -> 12  // SDL_CONTROLLER_BUTTON_DPAD_DOWN
+            KeyEvent.KEYCODE_DPAD_LEFT      -> 13  // SDL_CONTROLLER_BUTTON_DPAD_LEFT
+            KeyEvent.KEYCODE_DPAD_RIGHT     -> 14  // SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+            KeyEvent.KEYCODE_BUTTON_L2      -> 15
+            KeyEvent.KEYCODE_BUTTON_R2      -> 16
+            KeyEvent.KEYCODE_BUTTON_C       -> 17
+            KeyEvent.KEYCODE_BUTTON_Z       -> 18
+            in 188..203                     -> 20 + (keyCode - 188) // KEYCODE_BUTTON_1..16
+            else -> -1
+        }
+        if (sdlButton >= 0) return "but:0:$sdlButton"
+
+        val keyName = when (keyCode) {
+            in KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z ->
+                ('a' + (keyCode - KeyEvent.KEYCODE_A)).toString()
+            in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 ->
+                ('0' + (keyCode - KeyEvent.KEYCODE_0)).toString()
+            KeyEvent.KEYCODE_SPACE        -> "space"
+            KeyEvent.KEYCODE_ENTER        -> "return"
+            KeyEvent.KEYCODE_BACK         -> "back"
+            KeyEvent.KEYCODE_DEL          -> "backspace"
+            KeyEvent.KEYCODE_ESCAPE       -> "escape"
+            KeyEvent.KEYCODE_TAB          -> "tab"
+            KeyEvent.KEYCODE_MINUS        -> "[-]"
+            KeyEvent.KEYCODE_EQUALS       -> "="
             KeyEvent.KEYCODE_LEFT_BRACKET -> "["
-            KeyEvent.KEYCODE_RIGHT_BRACKET -> "]"
-            KeyEvent.KEYCODE_SEMICOLON -> ";"
-            KeyEvent.KEYCODE_APOSTROPHE -> "'"
-            KeyEvent.KEYCODE_SLASH -> "/"
-            KeyEvent.KEYCODE_BACKSLASH -> "\\"
-            KeyEvent.KEYCODE_COMMA -> ","
-            KeyEvent.KEYCODE_PERIOD -> "."
-            KeyEvent.KEYCODE_GRAVE -> "`"
-            KeyEvent.KEYCODE_SHIFT_LEFT -> "left shift"
-            KeyEvent.KEYCODE_SHIFT_RIGHT -> "right shift"
-            KeyEvent.KEYCODE_CTRL_LEFT -> "left ctrl"
-            KeyEvent.KEYCODE_CTRL_RIGHT -> "right ctrl"
-            KeyEvent.KEYCODE_ALT_LEFT -> "left alt"
-            KeyEvent.KEYCODE_ALT_RIGHT -> "right alt"
+            KeyEvent.KEYCODE_RIGHT_BRACKET-> "]"
+            KeyEvent.KEYCODE_SEMICOLON    -> ";"
+            KeyEvent.KEYCODE_APOSTROPHE   -> "'"
+            KeyEvent.KEYCODE_SLASH        -> "/"
+            KeyEvent.KEYCODE_BACKSLASH    -> "\\"
+            KeyEvent.KEYCODE_COMMA        -> ","
+            KeyEvent.KEYCODE_PERIOD       -> "."
+            KeyEvent.KEYCODE_GRAVE        -> "`"
+            KeyEvent.KEYCODE_SHIFT_LEFT   -> "left shift"
+            KeyEvent.KEYCODE_SHIFT_RIGHT  -> "right shift"
+            KeyEvent.KEYCODE_CTRL_LEFT    -> "left ctrl"
+            KeyEvent.KEYCODE_CTRL_RIGHT   -> "right ctrl"
+            KeyEvent.KEYCODE_ALT_LEFT     -> "left alt"
+            KeyEvent.KEYCODE_ALT_RIGHT    -> "right alt"
             else -> {
                 val name = KeyEvent.keyCodeToString(keyCode).removePrefix("KEYCODE_").lowercase()
                 Log.w(TAG, "Unknown keyCode $keyCode, using: $name")
                 name
             }
         }
+        return "key:0:$keyName"
     }
 }
