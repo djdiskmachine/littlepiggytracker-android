@@ -33,7 +33,7 @@ class SettingsActivity : AppCompatActivity() {
         // Setup back gesture handling
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Return to game
+                // Return to piggy
                 finish()
             }
         })

@@ -24,6 +24,7 @@ class LgptSDLActivity : SDLActivity() {
         private const val MENU_BUTTON_VIEW_ID = 0x00f00001
         private const val PREF_SURFACE_OFFSET_X = "surface_offset_x"
         private const val PREF_SURFACE_OFFSET_Y = "surface_offset_y"
+        private const val PREF_DRAG_TO_MOVE = "drag_to_move_enabled"
 
         init {
             System.loadLibrary("main")
@@ -36,6 +37,10 @@ class LgptSDLActivity : SDLActivity() {
     private var overlaySetupDone = false
     private var menuButtonSetupDone = false
     private var nativeReady = false
+    private var dragStartX = 0f
+    private var dragStartY = 0f
+    private var surfaceStartX = 0f
+    private var surfaceStartY = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +70,7 @@ class LgptSDLActivity : SDLActivity() {
         if (hasFocus && !menuButtonSetupDone) {
             setupMenuButton()
             restoreSurfaceOffset()
+            applyDragToMove(prefs.getBoolean(PREF_DRAG_TO_MOVE, false))
             menuButtonSetupDone = true
         }
 
@@ -81,7 +87,7 @@ class LgptSDLActivity : SDLActivity() {
         try {
             // Find the SDL content view (parent of all SDL views)
             val contentView = window.decorView.findViewById<ViewGroup>(android.R.id.content)
-            // Set background color: read from config.xml if available, otherwise use game default
+            // Set background color: read from config.xml if available, otherwise use defaults
             val bgColor = readBackgroundColorFromConfig()
             contentView.setBackgroundColor(bgColor)
             
@@ -149,20 +155,13 @@ class LgptSDLActivity : SDLActivity() {
         val contentView = window.decorView.findViewById<ViewGroup>(android.R.id.content)
         val anchor = contentView.findViewById<ImageButton>(MENU_BUTTON_VIEW_ID) ?: contentView
         val popup = PopupMenu(this, anchor)
-        popup.menu.add("X+").setOnMenuItemClickListener {
-            adjustSurface(20f, 0f)
-            true
-        }
-        popup.menu.add("X-").setOnMenuItemClickListener {
-            adjustSurface(-20f, 0f)
-            true
-        }
-        popup.menu.add("Y+").setOnMenuItemClickListener {
-            adjustSurface(0f, 20f)
-            true
-        }
-        popup.menu.add("Y-").setOnMenuItemClickListener {
-            adjustSurface(0f, -20f)
+        val dragEnabled = prefs.getBoolean(PREF_DRAG_TO_MOVE, false)
+        val dragItem = popup.menu.add(if (dragEnabled) "✓ Drag to Move" else "Drag to Move")
+        dragItem.setOnMenuItemClickListener {
+            val newState = !prefs.getBoolean(PREF_DRAG_TO_MOVE, false)
+            prefs.edit().putBoolean(PREF_DRAG_TO_MOVE, newState).apply()
+            applyDragToMove(newState)
+            Log.i(TAG, "Drag to move: $newState")
             true
         }
         popup.menu.add("Settings").setOnMenuItemClickListener {
@@ -176,15 +175,33 @@ class LgptSDLActivity : SDLActivity() {
         popup.show()
     }
 
-    private fun adjustSurface(dx: Float, dy: Float) {
-        mSurface?.let {
-            it.translationX += dx
-            it.translationY += dy
-            val offsetX = prefs.getFloat(PREF_SURFACE_OFFSET_X, 0f) + dx
-            val offsetY = prefs.getFloat(PREF_SURFACE_OFFSET_Y, 0f) + dy
-            prefs.edit().putFloat(PREF_SURFACE_OFFSET_X, offsetX).putFloat(PREF_SURFACE_OFFSET_Y, offsetY).apply()
-            Log.i(TAG, "Surface offset: X=$offsetX, Y=$offsetY")
-        }
+    private fun applyDragToMove(enabled: Boolean) {
+        mSurface?.setOnTouchListener(if (enabled) { _, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    dragStartX = event.rawX
+                    dragStartY = event.rawY
+                    surfaceStartX = mSurface!!.translationX
+                    surfaceStartY = mSurface!!.translationY
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val newX = surfaceStartX + (event.rawX - dragStartX)
+                    val newY = surfaceStartY + (event.rawY - dragStartY)
+                    mSurface!!.translationX = newX
+                    mSurface!!.translationY = newY
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    val offsetX = mSurface!!.translationX
+                    val offsetY = mSurface!!.translationY
+                    prefs.edit().putFloat(PREF_SURFACE_OFFSET_X, offsetX).putFloat(PREF_SURFACE_OFFSET_Y, offsetY).apply()
+                    Log.i(TAG, "Surface drag end: X=$offsetX, Y=$offsetY")
+                    true
+                }
+                else -> false
+            }
+        } else null)
     }
 
     private fun restoreSurfaceOffset() {
@@ -198,7 +215,7 @@ class LgptSDLActivity : SDLActivity() {
     }
 
     private fun readBackgroundColorFromConfig(): Int {
-        // Default game color: 0x1D0A1F (dark purple)
+        // Default color: 0x1D0A1F (dark purple)
         var r = 0x1D
         var g = 0x0A
         var b = 0x1F

@@ -130,7 +130,7 @@ class InputMapperActivity : AppCompatActivity() {
         configManager.saveKeyBindings(mappedEvents)
         prefs.edit().putBoolean(PREF_MAPPING_COMPLETE, true).apply()
         
-        // Launch the game with the new config
+        // Launch with the new config
         Log.i(TAG, "Starting LgptSDLActivity with new config")
         val intent = Intent(this, LgptSDLActivity::class.java)
         startActivity(intent)
@@ -150,7 +150,7 @@ class InputMapperActivity : AppCompatActivity() {
         progressText.text = "Complete"
         skipButton.text = "Start Game"
         skipButton.setOnClickListener {
-            Log.i(TAG, "Starting game with current mappings")
+            Log.i(TAG, "Starting with current mappings")
             val intent = Intent(this, LgptSDLActivity::class.java)
             startActivity(intent)
             finish()

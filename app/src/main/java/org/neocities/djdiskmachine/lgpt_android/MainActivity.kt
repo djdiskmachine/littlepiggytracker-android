@@ -30,7 +30,7 @@ class MainActivity : Activity() {
             requestStoragePermissions()
             prefs.edit().putBoolean("app_initialized", true).apply()
         } else {
-            // Subsequent launches - go straight to game
+            // Subsequent launches - go straight to piggin
             copyPublicConfigIfExists()
             startLgptActivity()
         }
@@ -39,7 +39,7 @@ class MainActivity : Activity() {
     private fun initializeFiles() {
         try {
             // Copy config.xml and mapping.xml from assets to BOTH locations:
-            // 1. App-specific folder (where game reads from)
+            // 1. App-specific folder (where piggy reads from)
             // 2. Public LittlePiggyTracker folder (where user can edit)
             
             val appSpecificFolder = getExternalFilesDir(null)
