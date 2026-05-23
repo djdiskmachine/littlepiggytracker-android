@@ -1,9 +1,16 @@
 <CONFIG>
     <DUMPEVENT value="YES"/>
     <SCREENMULT value="3"/>
-    <XOFFSET value="80"/>
-    <YOFFSET value="320"/>
     <ROOTFOLDER value="/storage/emulated/0/LittlePiggyTracker"/>
     <SAMPLELIB value="/storage/emulated/0/LittlePiggyTracker"/>
 
+    <KEY_UP value="but:0:11"/>
+    <KEY_DOWN value="but:0:12"/>
+    <KEY_LEFT value="but:0:13"/>
+    <KEY_RIGHT value="but:0:14"/>
+    <KEY_A value="but:0:1"/>
+    <KEY_B value="but:0:0"/>
+    <KEY_START value="but:0:6"/>
+    <KEY_LSHOULDER value="but:0:9"/>
+    <KEY_RSHOULDER value="but:0:10"/>
 </CONFIG>

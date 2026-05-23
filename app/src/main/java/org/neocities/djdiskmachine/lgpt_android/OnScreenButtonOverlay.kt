@@ -26,10 +26,9 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
         ButtonDef(4, "A", KeyEvent.KEYCODE_S, RectF()),                    // A
         ButtonDef(5, "B", KeyEvent.KEYCODE_A, RectF()),                    // B
         ButtonDef(6, "Start", KeyEvent.KEYCODE_SPACE, RectF()),            // Start
-        ButtonDef(7, "Select", KeyEvent.KEYCODE_TAB, RectF()),             // Select (hidden)
-        ButtonDef(8, "L", KeyEvent.KEYCODE_Q, RectF()),                    // L shoulder
-        ButtonDef(9, "R", KeyEvent.KEYCODE_W, RectF()),                    // R shoulder
-        ButtonDef(10, "cut", KeyEvent.KEYCODE_Z, RectF())                  // cut (A+B)
+        ButtonDef(7, "L", KeyEvent.KEYCODE_Q, RectF()),                    // L shoulder
+        ButtonDef(8, "R", KeyEvent.KEYCODE_W, RectF()),                    // R shoulder
+        ButtonDef(9, "cut", KeyEvent.KEYCODE_Z, RectF())                  // cut (A+B)
     )
 
     private val paint = Paint().apply {
@@ -71,7 +70,7 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
         val dpadX = (width * 0.05f).toInt()
 
         // L button (bottom left) - moved up by one button height
-        buttons[8].bounds = RectF(
+        buttons[7].bounds = RectF(
             dpadX.toFloat(),
             (height - btnSize * 2).toFloat(),
             (dpadX + btnSize * 2).toFloat(),
@@ -88,7 +87,7 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
 
         // R button (bottom right) - moved up by one button height
         val mirrorLeft = width - (dpadX + btnSize * 2)
-        buttons[9].bounds = RectF(
+        buttons[8].bounds = RectF(
             mirrorLeft.toFloat(),
             (height - btnSize * 2).toFloat(),
             (mirrorLeft + btnSize * 2).toFloat(),
@@ -133,7 +132,7 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
         )
 
         // B button - anchor at leftmost of R button, same height as Left/Down/Right
-        val rLeft = buttons[9].bounds.left
+        val rLeft = buttons[8].bounds.left
         buttons[5].bounds = RectF(
             rLeft,
             leftRightY,
@@ -142,8 +141,8 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
         )
 
         // Cut button - to the left of A
-        val rRight = buttons[9].bounds.right
-        buttons[10].bounds = RectF(
+        val rRight = buttons[8].bounds.right
+        buttons[9].bounds = RectF(
             rRight - btnSize * 2 - spacing,
             upY,
             rRight - btnSize - spacing,
@@ -157,9 +156,6 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
             rRight,
             upY + btnSize
         )
-
-        // Select button (hidden by default, can place it elsewhere or in a submenu)
-        buttons[7].bounds = RectF(-1000f, -1000f, -900f, -900f) // Off-screen
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -224,6 +220,8 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
                     invalidate()
                     return true
                 }
+                // Touch not on any button, let it pass through to surface
+                return false
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 val pointerIndex = event.actionIndex
@@ -237,8 +235,15 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
                     invalidate()
                     return true
                 }
+                // Touch not on any button, let it pass through to surface
+                return false
             }
             MotionEvent.ACTION_MOVE -> {
+                // Only consume move if we have active button touches
+                if (touchMap.isEmpty()) {
+                    return false
+                }
+
                 // Update pressed state based on movement
                 (0 until event.pointerCount).forEach { pointerIndex ->
                     val pointerId = event.getPointerId(pointerIndex)
@@ -263,9 +268,10 @@ class OnScreenButtonOverlay(context: Context) : View(context) {
                         invalidate()
                     }
                 }
+                return true
             }
         }
-        return true
+        return false
     }
 
     override fun dispatchKeyEvent(keyEvent: KeyEvent): Boolean {

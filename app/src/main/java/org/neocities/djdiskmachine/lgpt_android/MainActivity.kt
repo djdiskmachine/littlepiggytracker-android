@@ -25,12 +25,8 @@ class MainActivity : Activity() {
         val isFirstRun = !prefs.getBoolean("app_initialized", false)
     
         if (isFirstRun) {
-            // Only on first launch
-            initializeFiles()
-            requestStoragePermissions()
-            prefs.edit().putBoolean("app_initialized", true).apply()
+            requestStoragePermissions()  // Just request, don't call initializeFiles() here
         } else {
-            // Subsequent launches - go straight to piggin
             copyPublicConfigIfExists()
             startLgptActivity()
         }
@@ -55,9 +51,8 @@ class MainActivity : Activity() {
                 copyAssetToFolder("mapping.xml", appSpecificFolder)
             }
             
-            // Copy config.xml and mapping.xml to public folder
+            // Copy config.xml to public folder
             copyAssetToFolder("config.xml", publicFolder)
-            copyAssetToFolder("mapping.xml", publicFolder)
             
             Log.i(TAG, "Files initialized successfully")
             Log.i(TAG, "App-specific folder: ${appSpecificFolder?.absolutePath}")
@@ -200,6 +195,9 @@ class MainActivity : Activity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()) {
                 Log.i(TAG, "MANAGE_EXTERNAL_STORAGE granted")
                 createPublicFolder()
+                initializeFiles()
+                val prefs = getSharedPreferences("lgpt_prefs", MODE_PRIVATE)
+                prefs.edit().putBoolean("app_initialized", true).apply()
             } else {
                 Log.w(TAG, "MANAGE_EXTERNAL_STORAGE denied - using app-specific folder only")
             }
@@ -223,6 +221,9 @@ class MainActivity : Activity() {
             if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 Log.i(TAG, "Storage permissions granted")
                 createPublicFolder()
+                initializeFiles()
+                val prefs = getSharedPreferences("lgpt_prefs", MODE_PRIVATE)
+                prefs.edit().putBoolean("app_initialized", true).apply()
             } else {
                 Log.w(TAG, "Storage permissions denied - using app-specific folder only")
             }

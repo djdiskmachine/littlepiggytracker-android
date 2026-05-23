@@ -1,10 +1,12 @@
 # LittleGPTracker Android App
 
-This is the Android application for LittleGPTracker using the existing Makefile build system.
+This is the Android application for LittleGPTracker.
+A wrapper for the native code with on-screen overlays for configuration and fine-tuning
+of the user experience.
 
 ## Key Features
 
-- **No CMake**: Uses existing Makefiles via Gradle exec tasks
+- **NDK build**: Uses existing Makefiles via Gradle exec tasks
 - **Automatic SDL2**: Downloads and builds SDL2 from official releases
 - **Native Build**: Calls `Makefile.ANDROID` for each ABI
 - **No Manual Dependencies**: Everything is automated via Gradle
@@ -33,16 +35,7 @@ Simply build the project in Android Studio or via command line:
 - `build.gradle.kts` - Build configuration with custom tasks
 - CMake/cpp/ folder - Not used (can be deleted)
 
-## No Manual Steps
-
-Everything is automated:
-- ✅ SDL2 download from official sources
-- ✅ SDL2 compilation for both ABIs
-- ✅ LittleGPTracker compilation using existing Makefiles
-- ✅ Library packaging into APK
-
 ## Requirements
 
 - Android Studio with NDK
-- CMake (for SDL2 build only)
 - Python 3 (for font generation in Makefile)

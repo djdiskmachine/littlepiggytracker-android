@@ -18,7 +18,7 @@ class InputMapperActivity : AppCompatActivity() {
 
         val LGPT_EVENTS = listOf(
             "up", "down", "left", "right",
-            "a", "b", "start", "select",
+            "a", "b", "start",
             "lshoulder", "rshoulder"
         )
     }
@@ -123,6 +123,9 @@ class InputMapperActivity : AppCompatActivity() {
         detectedEventText.text = ""
         progressText.text = "Ready to save"
         isListeningForInput = false
+        skipButton.visibility = android.view.View.GONE
+        saveButton.visibility = android.view.View.VISIBLE
+        resetButton.visibility = android.view.View.VISIBLE
     }
 
     private fun saveAndFinish() {
