@@ -17,6 +17,8 @@ import java.io.FileOutputStream
 
 class MainActivity : Activity() {
 
+    private var logcatLogger: LogcatLogger? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -30,6 +32,11 @@ class MainActivity : Activity() {
             copyPublicConfigIfExists()
             startLgptActivity()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        logcatLogger?.stop()
     }
 
     private fun initializeFiles() {
@@ -57,6 +64,10 @@ class MainActivity : Activity() {
             Log.i(TAG, "Files initialized successfully")
             Log.i(TAG, "App-specific folder: ${appSpecificFolder?.absolutePath}")
             Log.i(TAG, "Public folder: ${publicFolder.absolutePath}")
+
+            // Mark initialization as complete
+            val prefs = getSharedPreferences("lgpt_prefs", MODE_PRIVATE)
+            prefs.edit().putBoolean("app_initialized", true).apply()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to initialize files", e)
         }
@@ -118,6 +129,7 @@ class MainActivity : Activity() {
             } else {
                 Log.i(TAG, "MANAGE_EXTERNAL_STORAGE already granted")
                 createPublicFolder()
+                initializeFiles()
                 startLgptActivity()
             }
         } else {
@@ -135,6 +147,7 @@ class MainActivity : Activity() {
             } else {
                 Log.i(TAG, "Storage permissions already granted")
                 createPublicFolder()
+                initializeFiles()
                 startLgptActivity()
             }
         }
@@ -196,8 +209,6 @@ class MainActivity : Activity() {
                 Log.i(TAG, "MANAGE_EXTERNAL_STORAGE granted")
                 createPublicFolder()
                 initializeFiles()
-                val prefs = getSharedPreferences("lgpt_prefs", MODE_PRIVATE)
-                prefs.edit().putBoolean("app_initialized", true).apply()
             } else {
                 Log.w(TAG, "MANAGE_EXTERNAL_STORAGE denied - using app-specific folder only")
             }
@@ -206,6 +217,11 @@ class MainActivity : Activity() {
     }
 
     private fun startLgptActivity() {
+        val publicFolder = File("/storage/emulated/0/LittlePiggyTracker")
+        val logFile = File(publicFolder, "lgpt.log")
+        logcatLogger = LogcatLogger(logFile)
+        logcatLogger?.start()
+        
         val intent = Intent(this, LgptSDLActivity::class.java)
         startActivity(intent)
         finish()
@@ -222,8 +238,6 @@ class MainActivity : Activity() {
                 Log.i(TAG, "Storage permissions granted")
                 createPublicFolder()
                 initializeFiles()
-                val prefs = getSharedPreferences("lgpt_prefs", MODE_PRIVATE)
-                prefs.edit().putBoolean("app_initialized", true).apply()
             } else {
                 Log.w(TAG, "Storage permissions denied - using app-specific folder only")
             }
