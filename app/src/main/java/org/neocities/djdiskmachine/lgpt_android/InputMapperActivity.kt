@@ -1,4 +1,4 @@
-package org.neocities.djdiskmachine.lgpt_android
+package net.djdiskmachi.lgpt_android
 
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -151,7 +151,7 @@ class InputMapperActivity : AppCompatActivity() {
         instructionText.text = "Input mapping configured:\n\n${mappedEvents.size} events mapped"
         detectedEventText.text = "Current mappings loaded"
         progressText.text = "Complete"
-        skipButton.text = "Start Game"
+        skipButton.text = "Start Piggy"
         skipButton.setOnClickListener {
             Log.i(TAG, "Starting with current mappings")
             val intent = Intent(this, LgptSDLActivity::class.java)

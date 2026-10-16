@@ -1,4 +1,4 @@
-package org.neocities.djdiskmachine.lgpt_android
+package net.djdiskmachi.lgpt_android
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("org.neocities.djdiskmachine.lgpt_android", appContext.packageName)
+        assertEquals("net.djdiskmachi.lgpt_android", appContext.packageName)
     }
 }

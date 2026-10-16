@@ -10,10 +10,10 @@ val sdlDownloadDir = layout.buildDirectory.dir("sdl-download").get().asFile
 val sdlExtractDir = layout.buildDirectory.dir("sdl-extracted").get().asFile
 
 android {
-    namespace = "org.neocities.djdiskmachine.lgpt_android"
+    namespace = "net.djdiskmachi.lgpt_android"
     compileSdk = 36
     defaultConfig {
-        applicationId = "org.neocities.djdiskmachine.lgpt_android"
+        applicationId = "net.djdiskmachi.lgpt_android"
         minSdk = 21
         targetSdk = 36
         versionCode = 1

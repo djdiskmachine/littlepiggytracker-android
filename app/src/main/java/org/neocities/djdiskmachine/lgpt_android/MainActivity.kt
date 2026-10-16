@@ -1,4 +1,4 @@
-package org.neocities.djdiskmachine.lgpt_android
+package net.djdiskmachi.lgpt_android
 
 import android.app.Activity
 import android.content.Intent
